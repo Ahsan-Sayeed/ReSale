@@ -24,6 +24,7 @@ async function run() {
       //collections
       const Products = database.collection("Products");
       const Users = database.collection("Users");
+      const Booked = database.collection("Booked");
 
     //  routes
       //create users
@@ -101,11 +102,39 @@ async function run() {
         })
 //sellers end
 
+//buyers
+        app.post('/book',async(req,res)=>{
+            const result = await Booked.insertOne(req.body);
+            res.status(200).send(result); 
+        })
+
+//end of buyers
+
 // open to all
         app.get('/ads',async(req,res)=>{
           const result = await Products.find({advertise:true}).toArray();
           res.status(200).send(result);
         })
+        app.get('/category',async(req,res)=>{
+          const result = await Products.find({}).project({category:1,_id:1}).toArray();
+          const finalResult=[...new Set(result.map(v=>v.category))].map(v=>result.find(d=>d.category===v));
+          res.status(200).send(finalResult);
+        })
+        app.get('/products/:id',async(req,res)=>{
+          const result = await Products.findOne({_id:ObjectId(req.params.id)});
+          const findOutAll= await Products.find({category:result.category}).toArray();
+          const booked = await Booked.find({category:result.category}).toArray();
+
+          findOutAll.forEach(value=>{
+            const x = booked.filter(book=>book.productID === (value._id).toString() )
+            if(x[0]?.productID===(value._id).toString()){
+              value.booked=true;
+            }
+          })
+          res.status(200).send(findOutAll);
+        })
+//end of open to all
+
 
     } finally {}
   }
