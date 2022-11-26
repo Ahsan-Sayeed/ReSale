@@ -107,6 +107,10 @@ async function run() {
             const result = await Booked.insertOne(req.body);
             res.status(200).send(result); 
         })
+        app.get('/book/:uid',async(req,res)=>{
+          const result = await Booked.find({userUID:req.params.uid}).toArray();
+          res.status(200).send(result);
+        })
 
 //end of buyers
 
@@ -123,7 +127,7 @@ async function run() {
         app.get('/products/:id',async(req,res)=>{
           const result = await Products.findOne({_id:ObjectId(req.params.id)});
           const findOutAll= await Products.find({category:result.category}).toArray();
-          const booked = await Booked.find({category:result.category}).toArray();
+          const booked = await Booked.find({$and:[{category:result.category},{userUID:req.query.uid}]}).toArray();
 
           findOutAll.forEach(value=>{
             const x = booked.filter(book=>book.productID === (value._id).toString() )
