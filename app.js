@@ -22,9 +22,7 @@ async function run() {
     try {
       const database = client.db("BuySell");
       //collections
-      const Category1 = database.collection("Category1");
-      const Category2 = database.collection("Category2");
-      const Category3 = database.collection("Category3");
+      const Products = database.collection("Products");
       const Users = database.collection("Users");
 
     //  routes
@@ -40,9 +38,9 @@ async function run() {
           res.status(200).send(result[0]);
         })
     //admin panel
-        // get all buyers
-        app.get('/admin/buyers',async(req,res)=>{
-          const result = await Users.find({role:'Buyer'}).toArray();
+        // get all buyers and sellers
+        app.get('/admin/:key',async(req,res)=>{
+          const result = await Users.find({role:req.params.key}).toArray();
           res.status(200).send(result);
         })
         // delete a buyer
@@ -50,23 +48,68 @@ async function run() {
           const result = await Users.deleteOne({_id:ObjectId(req.params.id)});
           res.status(200).send(result);
         })
-        // get all sellers 
-        app.get('/admin/sellers',async(req,res)=>{
-          const result = await Users.find({role:"Seller"}).toArray();
-          res.status(200).send(result);
-        })
         //delete a seller 
         app.delete('/admin/seller/:id',async(req,res)=>{
           const result = await Users.deleteOne({_id:ObjectId(req.params.id)});
           res.status(200).send(result);
         })
+        //update a seller
+        app.put('/admin/seller/:id',async(req,res)=>{
+          const result = await Users.updateOne(
+            {
+              _id:ObjectId(req.params.id)
+            },
+            {
+                $set:{
+                  verified:true
+                } 
+          },
+          {
+            upsert: true
+          });          
+          res.status(200).send(result);
+        })
 // end of admin panel
+
+//seller
+        app.post('/seller/products',async(req,res)=>{
+          const result = await Products.insertOne({...req.body,Time:Date.now()});
+          res.status(200).send(result);
+        })
+        app.get('/seller/products/:uid',async(req,res)=>{
+          const result = await Products.find({sellerUID:req.params.uid}).toArray();
+          res.status(200).send(result);
+        })
+        app.delete('/seller/products/:id',async(req,res)=>{
+          const result = await Products.deleteOne({_id:ObjectId(req.params.id)});
+          res.status(200).send(result);
+        })
+        app.put('/seller/products/:id',async(req,res)=>{
+          const result = await Products.updateOne(
+            {
+              _id:ObjectId(req.params.id)
+            },
+            {
+                $set:{
+                  advertise:req.body.advertise
+                } 
+          },
+          {
+            upsert: true
+          })
+          res.status(200).send(result);
+        })
+//sellers end
+
+// open to all
+        app.get('/ads',async(req,res)=>{
+          const result = await Products.find({advertise:true}).toArray();
+          res.status(200).send(result);
+        })
 
     } finally {}
   }
   run().catch(console.dir);
-
-
 
 
 module.exports = app;
