@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 require('dotenv').config();
+const stripe = require("stripe")(process.env.SK_KEY);
 
 //connect to database
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
@@ -25,6 +26,7 @@ async function run() {
       const Products = database.collection("Products");
       const Users = database.collection("Users");
       const Booked = database.collection("Booked");
+      const Payment = database.collection("Payment");
 
     //  routes
       //create users
@@ -109,6 +111,15 @@ async function run() {
         })
         app.get('/book/:uid',async(req,res)=>{
           const result = await Booked.find({userUID:req.params.uid}).toArray();
+          const payed = await Payment.find({userUID:req.params.uid}).toArray();
+
+          result.forEach(data=>{
+            payed.forEach(v=>{
+              if(v.productID===data.productID){
+                data.payed=true;
+              }
+            })
+          })
           res.status(200).send(result);
         })
 
@@ -116,7 +127,7 @@ async function run() {
 
 // open to all
         app.get('/ads',async(req,res)=>{
-          const result = await Products.find({advertise:true}).toArray();
+          let result = await Products.find({advertise:true}).toArray();
           res.status(200).send(result);
         })
         app.get('/category',async(req,res)=>{
@@ -138,6 +149,55 @@ async function run() {
           res.status(200).send(findOutAll);
         })
 //end of open to all
+
+
+// payment 
+        app.post("/create-payment-intent", async (req, res) => {
+          const price = req.body.price;
+          const amount = price*100;
+          // Create a PaymentIntent with the order amount and currency
+          const paymentIntent = await stripe.paymentIntents.create({
+            amount: amount,
+            currency: "usd",
+            "payment_method_types": [
+              "card"
+            ]
+          });
+        
+          res.send({
+            clientSecret: paymentIntent.client_secret,
+          });
+        });
+
+        app.post('/payment',async(req,res)=>{
+          const {productID} = req.body;
+          const result = await Payment.insertOne(req.body);
+          
+          const updateData = await Booked.updateOne({
+            productID:productID
+          },
+          {
+            $set:{
+              payed:true
+            }
+          },
+          {
+            upsert:true
+          })
+          const sold = await Products.updateOne(
+            {
+              _id:ObjectId(productID)
+            },
+            {
+              $set:{
+                sold:true
+              }
+            },
+            {upsert:true}
+            )
+
+          res.status(200).send(result);
+        })
 
 
     } finally {}
