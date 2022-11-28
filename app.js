@@ -167,36 +167,36 @@ async function run() {
         })
 //sellers end
 
-// //buyers
-//         app.post('/book',VerifyToken,async(req,res)=>{
-//           try{
-//             const result = await Booked.insertOne(req.body);
-//             res.status(200).send(result); 
-//           }
-//           catch(err){
-//             console.log(err);
-//           }
-//         })
-//         app.get('/book/:uid',VerifyToken,async(req,res)=>{
-//           try{
-//           const result = await Booked.find({userUID:req.params.uid}).toArray();
-//           const payed = await Payment.find({userUID:req.params.uid}).toArray();
+//buyers
+        app.post('/book',VerifyToken,async(req,res)=>{
+          try{
+            const result = await Booked.insertOne(req.body);
+            res.status(200).send(result); 
+          }
+          catch(err){
+            console.log(err);
+          }
+        })
+        app.get('/book/:uid',VerifyToken,async(req,res)=>{
+          try{
+          const result = await Booked.find({userUID:req.params.uid}).toArray();
+          const payed = await Payment.find({userUID:req.params.uid}).toArray();
 
-//           result.forEach(data=>{
-//             payed.forEach(v=>{
-//               if(v.productID===data.productID){
-//                 data.payed=true;
-//               }
-//             })
-//           })
-//           res.status(200).send(result);
-//         }
-//         catch(err){
-//           console.log(err);
-//         }
-//         })
+          result.forEach(data=>{
+            payed.forEach(v=>{
+              if(v.productID===data.productID){
+                data.payed=true;
+              }
+            })
+          })
+          res.status(200).send(result);
+        }
+        catch(err){
+          console.log(err);
+        }
+        })
 
-// //end of buyers
+//end of buyers
 
 // // open to all
 //         app.get('/ads',async(req,res)=>{
