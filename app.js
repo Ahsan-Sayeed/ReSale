@@ -18,7 +18,7 @@ app.use(express.json());
 
 //test route
 app.get('/',(req,res)=>{
-    res.status(200).send('hello word');
+    res.status(200).send('hello word...');
 })
 
 async function run() {
