@@ -209,16 +209,16 @@ async function run() {
           }
         })
 
-        // app.get('/category',async(req,res)=>{
-        //   try{
-        //   const result = await Products.find({}).project({category:1,_id:1}).toArray();
-        //   const finalResult=[...new Set(result.map(v=>v.category))].map(v=>result.find(d=>d.category===v));
-        //   res.status(200).send(finalResult);
-        //   }
-        //   catch(err){
-        //     console.log(err);
-        //   }
-        // })
+        app.get('/category',async(req,res)=>{
+          try{
+          const result = await Products.find({}).project({category:1,_id:1}).toArray();
+          const finalResult=[...new Set(result.map(v=>v.category))].map(v=>result.find(d=>d.category===v));
+          res.status(200).send(finalResult);
+          }
+          catch(err){
+            console.log(err);
+          }
+        })
         // app.get('/products/:id',VerifyToken,async(req,res)=>{
         //   try{
         //   const result = await Products.findOne({_id:ObjectId(req.params.id)});
