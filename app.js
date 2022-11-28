@@ -219,160 +219,162 @@ async function run() {
             console.log(err);
           }
         })
-        app.get('/products/:id',VerifyToken,async(req,res)=>{
-          try{
-          const result = await Products.findOne({_id:ObjectId(req.params.id)});
-          const findOutAll= await Products.find({category:result.category}).toArray();
-          const booked = await Booked.find({$and:[{category:result.category},{userUID:req.query.uid}]}).toArray();
+    //error:
 
-          findOutAll.forEach(value=>{
-            const x = booked.filter(book=>book.productID === (value._id).toString() )
-            if(x[0]?.productID===(value._id).toString()){
-              value.booked=true;
-            }
-          })
-          res.status(200).send(findOutAll);
+        // app.get('/products/:id',VerifyToken,async(req,res)=>{
+        //   try{
+        //   const result = await Products.findOne({_id:ObjectId(req.params.id)});
+        //   const findOutAll= await Products.find({category:result.category}).toArray();
+        //   const booked = await Booked.find({$and:[{category:result.category},{userUID:req.query.uid}]}).toArray();
+
+        //   findOutAll.forEach(value=>{
+        //     const x = booked.filter(book=>book.productID === (value._id).toString() )
+        //     if(x[0]?.productID===(value._id).toString()){
+        //       value.booked=true;
+        //     }
+        //   })
+        //   res.status(200).send(findOutAll);
+        // }
+        // catch(err){
+        //   console.log(err);
+        // }
+        // })
+//end of open to all
+
+
+// payment 
+        app.post("/create-payment-intent",VerifyToken,async (req, res) => {
+          try{
+          const price = req.body.price;
+          const amount = price*100;
+          // Create a PaymentIntent with the order amount and currency
+          const paymentIntent = await stripe.paymentIntents.create({
+            amount: amount,
+            currency: "usd",
+            "payment_method_types": [
+              "card"
+            ]
+          });
+        
+          res.send({
+            clientSecret: paymentIntent.client_secret,
+          });
         }
         catch(err){
           console.log(err);
         }
+        });
+
+        app.post('/payment',VerifyToken,async(req,res)=>{
+          try{
+          const {productID} = req.body;
+          const result = await Payment.insertOne(req.body);
+
+          const updateData = await Booked.updateOne({
+            productID:productID
+          },
+          {
+            $set:{
+              payed:true
+            }
+          },
+          {
+            upsert:true
+          })
+          const sold = await Products.updateOne(
+            {
+              _id:ObjectId(productID)
+            },
+            {
+              $set:{
+                sold:true
+              }
+            },
+            {upsert:true}
+            )
+
+          res.status(200).send(result);
+          }
+          catch(err){
+            console.log(err);
+          }
         })
-//end of open to all
 
+//others
+        app.get('/isverified/:uid',VerifyToken,async(req,res)=>{
+          try{
+          const result = await Users.find({uid:req.params.uid}).project({verified:1}).toArray();
+          res.status(200).send(result[0]);
+          }
+          catch(err){
+            console.log(err);
+          }
+        })
+//report
+        app.post('/report',VerifyToken,async(req,res)=>{
+          try{
+            const result = await Report.insertOne(req.body);
+            res.status(200).send(result);
+          }
+          catch(err){
+            console.log(err);
+          }
+        })
+        app.get('/report',VerifyToken,async(req,res)=>{
+          try{
+          const result = await Report.find({}).toArray();
+          res.status(200).send(result);
+          }
+          catch(err){
+            console.log(err);
+          }
+        })
+        app.post('/reportitem',VerifyToken,async(req,res)=>{
+          try{
+          const result = await Report.insertOne(req.body);
+          res.status(200).send(result);
+          }
+          catch(err){
+            console.log(err);
+          }
+        })
+        app.get('/reportitem',VerifyToken,async(req,res)=>{
+          try{
+          const result = await Report.find({role:'items'}).toArray();
+          res.status(200).send(result);
+          }
+          catch(err){
+            console.log(err);
+          }
+        })
+        app.delete('/report/:id',VerifyToken,async(req,res)=>{
+          try{
+          const result = await Report.updateOne({productID:req.params.id},{$set:{workDone:true}},{upsert:true});
+          const productDelete = await Products.deleteOne({_id:ObjectId(req.params.id)});
+          const bookingDelete = await Booked.deleteOne({productID:req.params.id});
+          res.status(200).send(result);
+          }
+          catch(err){
+            console.log(err);
+          }
+        })
 
-// // payment 
-//         app.post("/create-payment-intent",VerifyToken,async (req, res) => {
-//           try{
-//           const price = req.body.price;
-//           const amount = price*100;
-//           // Create a PaymentIntent with the order amount and currency
-//           const paymentIntent = await stripe.paymentIntents.create({
-//             amount: amount,
-//             currency: "usd",
-//             "payment_method_types": [
-//               "card"
-//             ]
-//           });
-        
-//           res.send({
-//             clientSecret: paymentIntent.client_secret,
-//           });
-//         }
-//         catch(err){
-//           console.log(err);
-//         }
-//         });
-
-//         app.post('/payment',VerifyToken,async(req,res)=>{
-//           try{
-//           const {productID} = req.body;
-//           const result = await Payment.insertOne(req.body);
-
-//           const updateData = await Booked.updateOne({
-//             productID:productID
-//           },
-//           {
-//             $set:{
-//               payed:true
-//             }
-//           },
-//           {
-//             upsert:true
-//           })
-//           const sold = await Products.updateOne(
-//             {
-//               _id:ObjectId(productID)
-//             },
-//             {
-//               $set:{
-//                 sold:true
-//               }
-//             },
-//             {upsert:true}
-//             )
-
-//           res.status(200).send(result);
-//           }
-//           catch(err){
-//             console.log(err);
-//           }
-//         })
-
-// //others
-//         app.get('/isverified/:uid',VerifyToken,async(req,res)=>{
-//           try{
-//           const result = await Users.find({uid:req.params.uid}).project({verified:1}).toArray();
-//           res.status(200).send(result[0]);
-//           }
-//           catch(err){
-//             console.log(err);
-//           }
-//         })
-// //report
-//         app.post('/report',VerifyToken,async(req,res)=>{
-//           try{
-//             const result = await Report.insertOne(req.body);
-//             res.status(200).send(result);
-//           }
-//           catch(err){
-//             console.log(err);
-//           }
-//         })
-//         app.get('/report',VerifyToken,async(req,res)=>{
-//           try{
-//           const result = await Report.find({}).toArray();
-//           res.status(200).send(result);
-//           }
-//           catch(err){
-//             console.log(err);
-//           }
-//         })
-//         app.post('/reportitem',VerifyToken,async(req,res)=>{
-//           try{
-//           const result = await Report.insertOne(req.body);
-//           res.status(200).send(result);
-//           }
-//           catch(err){
-//             console.log(err);
-//           }
-//         })
-//         app.get('/reportitem',VerifyToken,async(req,res)=>{
-//           try{
-//           const result = await Report.find({role:'items'}).toArray();
-//           res.status(200).send(result);
-//           }
-//           catch(err){
-//             console.log(err);
-//           }
-//         })
-//         app.delete('/report/:id',VerifyToken,async(req,res)=>{
-//           try{
-//           const result = await Report.updateOne({productID:req.params.id},{$set:{workDone:true}},{upsert:true});
-//           const productDelete = await Products.deleteOne({_id:ObjectId(req.params.id)});
-//           const bookingDelete = await Booked.deleteOne({productID:req.params.id});
-//           res.status(200).send(result);
-//           }
-//           catch(err){
-//             console.log(err);
-//           }
-//         })
-
-// //jsonweb token
-//     app.get('/jwt', async (req, res) => {
-//       try{
-//       const email = req.query.email;
-//       const query = { email: email };
-//       const user = await Users.findOne(query);
-//       if (user) {
-//           const token = jwt.sign({ email }, process.env.ACCESS_TOKEN)
-//           return res.send({ accessToken: token });
-//       }
-//       res.status(403).send({ accessToken: '' })
-//     }
-//     catch(err){
-//       console.log(err)
-//     }
-//   });
+//jsonweb token
+    app.get('/jwt', async (req, res) => {
+      try{
+      const email = req.query.email;
+      const query = { email: email };
+      const user = await Users.findOne(query);
+      if (user) {
+          const token = jwt.sign({ email }, process.env.ACCESS_TOKEN)
+          return res.send({ accessToken: token });
+      }
+      res.status(403).send({ accessToken: '' })
+    }
+    catch(err){
+      console.log(err)
+    }
+  });
 
     } finally {}
   }
