@@ -60,7 +60,7 @@ async function run() {
         })
     //admin panel
         // get all buyers and sellers
-        app.get('/admin/:key',VerifyToken,async(req,res)=>{
+        app.get('/admin/:key', async(req,res)=>{
           try{
           const result = await Users.find({role:req.params.key}).toArray();
           res.status(200).send(result);
@@ -70,7 +70,7 @@ async function run() {
           }
         })
         // delete a buyer
-        app.delete('/admin/buyer/:id',VerifyToken,async(req,res)=>{
+        app.delete('/admin/buyer/:id', async(req,res)=>{
           try{
 
             const result = await Users.deleteOne({_id:ObjectId(req.params.id)});
@@ -81,7 +81,7 @@ async function run() {
           }
         })
         //delete a seller 
-        app.delete('/admin/seller/:id',VerifyToken,async(req,res)=>{
+        app.delete('/admin/seller/:id', async(req,res)=>{
           try{
 
             const result = await Users.deleteOne({_id:ObjectId(req.params.id)});
@@ -92,7 +92,7 @@ async function run() {
           }
         })
         //update a seller
-        app.put('/admin/seller/:id',VerifyToken,async(req,res)=>{
+        app.put('/admin/seller/:id', async(req,res)=>{
           try{
           const result = await Users.updateOne(
             {
@@ -115,7 +115,7 @@ async function run() {
 // end of admin panel
 
 //seller
-        app.post('/seller/products',VerifyToken,async(req,res)=>{
+        app.post('/seller/products', async(req,res)=>{
           try{
 
             const result = await Products.insertOne({...req.body,Time:Date.now()});
@@ -125,7 +125,7 @@ async function run() {
             console.log(err);
           }
         })
-        app.get('/seller/products/:uid',VerifyToken,async(req,res)=>{
+        app.get('/seller/products/:uid', async(req,res)=>{
           try{
 
             const result = await Products.find({sellerUID:req.params.uid}).toArray();
@@ -135,7 +135,7 @@ async function run() {
             console.log(err);
           }
         })
-        app.delete('/seller/products/:id',VerifyToken,async(req,res)=>{
+        app.delete('/seller/products/:id', async(req,res)=>{
           try{
 
             const result = await Products.deleteOne({_id:ObjectId(req.params.id)});
@@ -145,7 +145,7 @@ async function run() {
             console.log(err);
           }
         })
-        app.put('/seller/products/:id',VerifyToken,async(req,res)=>{
+        app.put('/seller/products/:id', async(req,res)=>{
           try{
           const result = await Products.updateOne(
             {
@@ -168,7 +168,7 @@ async function run() {
 //sellers end
 
 //buyers
-        app.post('/book',VerifyToken,async(req,res)=>{
+        app.post('/book', async(req,res)=>{
           try{
             const result = await Booked.insertOne(req.body);
             res.status(200).send(result); 
@@ -177,7 +177,7 @@ async function run() {
             console.log(err);
           }
         })
-        app.get('/book/:uid',VerifyToken,async(req,res)=>{
+        app.get('/book/:uid', async(req,res)=>{
           try{
           const result = await Booked.find({userUID:req.params.uid}).toArray();
           const payed = await Payment.find({userUID:req.params.uid}).toArray();
@@ -219,7 +219,7 @@ async function run() {
             console.log(err);
           }
         })
-        app.get('/products/:id',VerifyToken,async(req,res)=>{
+        app.get('/products/:id', async(req,res)=>{
           try{
           const result = await Products.findOne({_id:ObjectId(req.params.id)});
           const findOutAll= await Products.find({category:result.category}).toArray();
@@ -241,7 +241,7 @@ async function run() {
 
 
 // payment 
-        app.post("/create-payment-intent",VerifyToken,async (req, res) => {
+        app.post("/create-payment-intent", async (req, res) => {
           try{
           const price = req.body.price;
           const amount = price*100;
@@ -263,7 +263,7 @@ async function run() {
         }
         });
 
-        app.post('/payment',VerifyToken,async(req,res)=>{
+        app.post('/payment', async(req,res)=>{
           try{
           const {productID} = req.body;
           const result = await Payment.insertOne(req.body);
@@ -299,7 +299,7 @@ async function run() {
         })
 
 //others
-        app.get('/isverified/:uid',VerifyToken,async(req,res)=>{
+        app.get('/isverified/:uid', async(req,res)=>{
           try{
           const result = await Users.find({uid:req.params.uid}).project({verified:1}).toArray();
           res.status(200).send(result[0]);
@@ -309,7 +309,7 @@ async function run() {
           }
         })
 //report
-        app.post('/report',VerifyToken,async(req,res)=>{
+        app.post('/report', async(req,res)=>{
           try{
             const result = await Report.insertOne(req.body);
             res.status(200).send(result);
@@ -318,7 +318,7 @@ async function run() {
             console.log(err);
           }
         })
-        app.get('/report',VerifyToken,async(req,res)=>{
+        app.get('/report', async(req,res)=>{
           try{
           const result = await Report.find({}).toArray();
           res.status(200).send(result);
@@ -327,7 +327,7 @@ async function run() {
             console.log(err);
           }
         })
-        app.post('/reportitem',VerifyToken,async(req,res)=>{
+        app.post('/reportitem', async(req,res)=>{
           try{
           const result = await Report.insertOne(req.body);
           res.status(200).send(result);
@@ -336,7 +336,7 @@ async function run() {
             console.log(err);
           }
         })
-        app.get('/reportitem',VerifyToken,async(req,res)=>{
+        app.get('/reportitem', async(req,res)=>{
           try{
           const result = await Report.find({role:'items'}).toArray();
           res.status(200).send(result);
@@ -345,7 +345,7 @@ async function run() {
             console.log(err);
           }
         })
-        app.delete('/report/:id',VerifyToken,async(req,res)=>{
+        app.delete('/report/:id', async(req,res)=>{
           try{
           const result = await Report.updateOne({productID:req.params.id},{$set:{workDone:true}},{upsert:true});
           const productDelete = await Products.deleteOne({_id:ObjectId(req.params.id)});
