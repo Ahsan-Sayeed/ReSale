@@ -114,58 +114,58 @@ async function run() {
         })
 // end of admin panel
 
-// //seller
-//         app.post('/seller/products',VerifyToken,async(req,res)=>{
-//           try{
+//seller
+        app.post('/seller/products',VerifyToken,async(req,res)=>{
+          try{
 
-//             const result = await Products.insertOne({...req.body,Time:Date.now()});
-//             res.status(200).send(result);
-//           }
-//           catch(err){
-//             console.log(err);
-//           }
-//         })
-//         app.get('/seller/products/:uid',VerifyToken,async(req,res)=>{
-//           try{
+            const result = await Products.insertOne({...req.body,Time:Date.now()});
+            res.status(200).send(result);
+          }
+          catch(err){
+            console.log(err);
+          }
+        })
+        app.get('/seller/products/:uid',VerifyToken,async(req,res)=>{
+          try{
 
-//             const result = await Products.find({sellerUID:req.params.uid}).toArray();
-//             res.status(200).send(result);
-//           }
-//           catch(err){
-//             console.log(err);
-//           }
-//         })
-//         app.delete('/seller/products/:id',VerifyToken,async(req,res)=>{
-//           try{
+            const result = await Products.find({sellerUID:req.params.uid}).toArray();
+            res.status(200).send(result);
+          }
+          catch(err){
+            console.log(err);
+          }
+        })
+        app.delete('/seller/products/:id',VerifyToken,async(req,res)=>{
+          try{
 
-//             const result = await Products.deleteOne({_id:ObjectId(req.params.id)});
-//             res.status(200).send(result);
-//           }
-//           catch(err){
-//             console.log(err);
-//           }
-//         })
-//         app.put('/seller/products/:id',VerifyToken,async(req,res)=>{
-//           try{
-//           const result = await Products.updateOne(
-//             {
-//               _id:ObjectId(req.params.id)
-//             },
-//             {
-//                 $set:{
-//                   advertise:req.body.advertise
-//                 } 
-//           },
-//           {
-//             upsert: true
-//           })
-//           res.status(200).send(result);
-//         }
-//         catch(err){
-//           console.log(err);
-//         }
-//         })
-// //sellers end
+            const result = await Products.deleteOne({_id:ObjectId(req.params.id)});
+            res.status(200).send(result);
+          }
+          catch(err){
+            console.log(err);
+          }
+        })
+        app.put('/seller/products/:id',VerifyToken,async(req,res)=>{
+          try{
+          const result = await Products.updateOne(
+            {
+              _id:ObjectId(req.params.id)
+            },
+            {
+                $set:{
+                  advertise:req.body.advertise
+                } 
+          },
+          {
+            upsert: true
+          })
+          res.status(200).send(result);
+        }
+        catch(err){
+          console.log(err);
+        }
+        })
+//sellers end
 
 // //buyers
 //         app.post('/book',VerifyToken,async(req,res)=>{
