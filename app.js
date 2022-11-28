@@ -198,46 +198,46 @@ async function run() {
 
 //end of buyers
 
-// // open to all
-//         app.get('/ads',async(req,res)=>{
-//           try{
-//           let result = await Products.find({advertise:true}).toArray();
-//           res.status(200).send(result);
-//           }
-//           catch(err){
-//             console.log(err);
-//           }
-//         })
+// open to all
+        app.get('/ads',async(req,res)=>{
+          try{
+          let result = await Products.find({advertise:true}).toArray();
+          res.status(200).send(result);
+          }
+          catch(err){
+            console.log(err);
+          }
+        })
 
-//         app.get('/category',async(req,res)=>{
-//           try{
-//           const result = await Products.find({}).project({category:1,_id:1}).toArray();
-//           const finalResult=[...new Set(result.map(v=>v.category))].map(v=>result.find(d=>d.category===v));
-//           res.status(200).send(finalResult);
-//           }
-//           catch(err){
-//             console.log(err);
-//           }
-//         })
-//         app.get('/products/:id',VerifyToken,async(req,res)=>{
-//           try{
-//           const result = await Products.findOne({_id:ObjectId(req.params.id)});
-//           const findOutAll= await Products.find({category:result.category}).toArray();
-//           const booked = await Booked.find({$and:[{category:result.category},{userUID:req.query.uid}]}).toArray();
+        app.get('/category',async(req,res)=>{
+          try{
+          const result = await Products.find({}).project({category:1,_id:1}).toArray();
+          const finalResult=[...new Set(result.map(v=>v.category))].map(v=>result.find(d=>d.category===v));
+          res.status(200).send(finalResult);
+          }
+          catch(err){
+            console.log(err);
+          }
+        })
+        app.get('/products/:id',VerifyToken,async(req,res)=>{
+          try{
+          const result = await Products.findOne({_id:ObjectId(req.params.id)});
+          const findOutAll= await Products.find({category:result.category}).toArray();
+          const booked = await Booked.find({$and:[{category:result.category},{userUID:req.query.uid}]}).toArray();
 
-//           findOutAll.forEach(value=>{
-//             const x = booked.filter(book=>book.productID === (value._id).toString() )
-//             if(x[0]?.productID===(value._id).toString()){
-//               value.booked=true;
-//             }
-//           })
-//           res.status(200).send(findOutAll);
-//         }
-//         catch(err){
-//           console.log(err);
-//         }
-//         })
-// //end of open to all
+          findOutAll.forEach(value=>{
+            const x = booked.filter(book=>book.productID === (value._id).toString() )
+            if(x[0]?.productID===(value._id).toString()){
+              value.booked=true;
+            }
+          })
+          res.status(200).send(findOutAll);
+        }
+        catch(err){
+          console.log(err);
+        }
+        })
+//end of open to all
 
 
 // // payment 
