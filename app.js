@@ -37,7 +37,6 @@ async function run() {
             const exist = await Users.findOne({uid:req.body.uid});
             if(exist===null){
               const result = await Users.insertOne(req.body);
-              console.log(result);
               res.status(200).send(result);
             }
             else{
@@ -45,7 +44,7 @@ async function run() {
             }
         })
         //get a user
-        app.get('/users/:uid',VerifyToken,async(req,res)=>{
+        app.get('/users/:uid',async(req,res)=>{
           const result = await Users.find({uid:req.params.uid}).toArray();
           res.status(200).send(result[0]);
         })
