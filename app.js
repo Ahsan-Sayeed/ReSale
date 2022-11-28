@@ -230,8 +230,8 @@ async function run() {
           findOutAll.forEach(value=>{
             const x = booked.filter(book=>book.productID === (value._id).toString() )
             // console.log(x.length);
-            if(x.length>0){
-              if(x[0]?.productID===(value._id).toString()){
+            if(x.length!==0){
+              if(x[0].productID===(value._id).toString()){
                 value.booked=true;
               }
             }         
